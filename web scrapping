@@ -1,0 +1,25 @@
+import requests
+from bs4 import BeautifulSoup
+import csv
+url = 'https://www.trustpilot.com/review/www.teslamotors.com'
+response = requests.get(url)
+soup = BeautifulSoup(response.text, 'html.parser')
+comments = soup.find_all('section', class_='styles_reviewContentwrapper__zH_9M')
+data = []
+for comment in comments:
+    comment_text = comment.find('h2', class_='typography_heading-s_f7029 typography_appearance-default_AAY17').text.strip()
+    Date_of_Experience = comment.find('p', class_='typography_body-m_xgxZ typography_appearance-default__AAY17').text.strip()
+    experience = comment.find('p', class_='typography_body-l_KUYFJ typography_appearance-defaultAAY17 typography_color-black_5LYEn').text.strip()
+    image = comment.find('div', class_='star-rating_starRating_4rrcf star-rating_medium_iN6Ty').text.strip()
+    data.append({
+        'Comment': comment_text,
+        'Experience': experience,
+        'image': image,
+        'Date of Experience': Date_of_Experience
+    })
+csv_file = 'tesla_comments.csv'
+with open(csv_file, mode='w', newline='', encoding='utf-8') as file:
+    writer = csv.DictWriter(file, fieldnames=['Comment', 'Experience', 'image', 'Date of Experience'])
+    writer.writeheader()
+    writer.writerows(data)
+print(f'Data saved to {csv_file}')
